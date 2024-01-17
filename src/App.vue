@@ -1,25 +1,23 @@
 <template>
-  <WelcomeBox msg="Welcome to Globish" />
+  <RouterView />
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import WelcomeBox from "./components/WelcomeBox.vue";
+import { defineComponent } from 'vue';
+import { RouterView } from 'vue-router';
 
 export default defineComponent({
-  name: "App",
+  name: 'App',
   components: {
-    WelcomeBox,
+    RouterView,
   },
 });
 </script>
 
 <style lang="scss">
-#app {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+.app {
+  height: 100vh;
+  max-width: 720px;
+  margin: auto;
 }
 </style>
