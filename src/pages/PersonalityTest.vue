@@ -1,5 +1,5 @@
 <template>
-  <div class="page-container">
+  <div class="page-container" v-if="!showResult">
     <div class="track-container">
       <div
         v-for="test in tests"
@@ -10,22 +10,29 @@
     <TestBox
       :test="tests[questionTrack - 1]"
       :answers="answers"
+      :knowing="knowing"
       @answer="selectAnswer"
+      @setInput="changeInput"
     />
     <div class="button-container">
       <button @click="goBack">กลับ</button>
       <button v-if="questionTrack < 7" @click="goNext">ต่อไป</button>
-      <button v-else>ดูผลลัพธ์</button>
+      <button v-else @click="handleSubmit">ดูผลลัพธ์</button>
     </div>
+  </div>
+  <div v-else>
+    <Result :submitResult="submitResult" />
   </div>
 </template>
 
 <script lang="ts">
 import TestBox from '@/components/TestBox.vue';
+import Result from '@/components/Result.vue';
 export default {
   name: 'PersonalityTest',
   components: {
     TestBox,
+    Result,
   },
   data() {
     return {
@@ -108,6 +115,20 @@ export default {
       ],
       questionTrack: 1,
       answers: [],
+      knowing: {
+        inputVisible: false,
+        textInput: '',
+        choices: [
+          { id: 1, active: false, description: 'Instagram' },
+          { id: 2, active: false, description: 'Facebook' },
+          { id: 3, active: false, description: 'อื่นๆ (โปรดระบุ)' },
+        ],
+      },
+      showResult: false,
+      submitResult: {
+        totalScore: 0,
+        know: [],
+      },
     };
   },
   methods: {
@@ -120,8 +141,22 @@ export default {
       }
       this.questionTrack--;
     },
+    changeInput(
+      this: {
+        knowing: {
+          textInput: string;
+        };
+      },
+      value: string
+    ) {
+      this.knowing.textInput = value;
+    },
     selectAnswer(
       this: {
+        knowing: {
+          inputVisible: boolean;
+          choices: { id: number; active: boolean; description: string }[];
+        };
         answers: {
           test_id: number;
           choice_id: number;
@@ -133,6 +168,15 @@ export default {
       point: number
     ) {
       console.log(choice_id, test_id);
+      if (test_id === 7) {
+        const findIndex = this.knowing.choices.findIndex(
+          (choice: { id: number }) => choice.id === choice_id
+        );
+        this.knowing.choices[findIndex].active =
+          !this.knowing.choices[findIndex].active;
+
+        return;
+      }
       const findIndex = this.answers.findIndex((el) => el.test_id === test_id);
       if (findIndex >= 0) {
         if (this.answers[findIndex].choice_id === choice_id) {
@@ -144,6 +188,44 @@ export default {
         this.answers.push({ test_id, choice_id, point });
       }
       this.answers = [...this.answers];
+    },
+    handleSubmit(this: {
+      submitResult: { totalScore: number; know: string[] };
+      knowing: {
+        textInput: string;
+        choices: { id: number; active: boolean; description: string }[];
+      };
+      answers: {
+        test_id: number;
+        choice_id: number;
+        point: number;
+      }[];
+      showResult: boolean;
+    }) {
+      if (this.answers.length !== 6) {
+        return alert('โปรดตอบคำถามให้ครบถ้วน');
+      }
+      if (
+        this.knowing.textInput.trim() === '' &&
+        this.knowing.choices[2].active
+      ) {
+        return alert('โปรดระบุข้อมูลอื่นๆ');
+      }
+      this.submitResult.totalScore = this.answers.reduce(
+        (acc: number, answer: { point: number }) => {
+          return (acc += answer.point);
+        },
+        0
+      );
+      this.knowing.choices.map((choice) => {
+        if (choice.active && choice.id !== 3) {
+          this.submitResult.know.push(choice.description);
+        }
+        if (choice.active && choice.id === 3) {
+          this.submitResult.know.push(this.knowing.textInput);
+        }
+      });
+      this.showResult = true;
     },
   },
 };

@@ -4,7 +4,7 @@
     <div class="question-container">
       <h2>{{ test.question }}</h2>
     </div>
-    <div class="choices">
+    <div class="choices" v-if="test.id <= 6">
       <div
         v-for="choice in test.choices"
         :key="choice.id"
@@ -17,6 +17,28 @@
           {{ choice.description }}
         </p>
       </div>
+      <input
+        v-show="knowing.choices[2].active && test.id === 7"
+        placeholder="โปรดระบุ"
+      />
+    </div>
+    <div class="choices" v-else>
+      <div
+        v-for="choice in knowing.choices"
+        :key="choice.id"
+        :class="choice.active ? 'active choice' : 'no-active choice'"
+        @click="answer(choice.id, choice.point)"
+      >
+        <p>
+          {{ choice.description }}
+        </p>
+      </div>
+      <input
+        v-show="knowing.choices[2].active && test.id === 7"
+        placeholder="โปรดระบุ"
+        @input="handleInput"
+        :value="knowing.textInput"
+      />
     </div>
   </div>
 </template>
@@ -24,7 +46,7 @@
 <script lang="ts">
 export default {
   name: 'TestBox',
-  props: ['test', 'answers'],
+  props: ['test', 'answers', 'knowing'],
   data() {
     return {
       inputVisible: false,
@@ -43,6 +65,9 @@ export default {
   methods: {
     answer(this: { test: { id: number } }, id: number, point: number) {
       (this as any).$emit('answer', id, this.test.id, point);
+    },
+    handleInput(e: any) {
+      (this as any).$emit('setInput', e.target.value);
     },
   },
 };
