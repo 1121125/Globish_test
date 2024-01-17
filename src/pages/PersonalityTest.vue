@@ -135,9 +135,6 @@ export default {
       console.log(choice_id, test_id);
       const findIndex = this.answers.findIndex((el) => el.test_id === test_id);
       if (findIndex >= 0) {
-        if (test_id === 7) {
-          console.log('wait');
-        }
         if (this.answers[findIndex].choice_id === choice_id) {
           this.answers.splice(findIndex, 1);
         } else {
@@ -147,12 +144,6 @@ export default {
         this.answers.push({ test_id, choice_id, point });
       }
       this.answers = [...this.answers];
-      console.log(this.answers);
-    },
-  },
-  watch: {
-    answer(value: []) {
-      console.log(value);
     },
   },
 };

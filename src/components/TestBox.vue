@@ -32,19 +32,17 @@ export default {
   },
   computed: {
     choice_answer_id(): number | null {
-      const filteredAnswers = this.answers.filter(
-        (answer: { test_id: number }) => answer.test_id === this.test.id
+      const filteredAnswers = (this as any).answers.filter(
+        (answer: { test_id: number }) =>
+          answer.test_id === (this as any).test.id
       );
 
       return filteredAnswers.length > 0 ? filteredAnswers[0].choice_id : null;
     },
   },
   methods: {
-    answer(id: number, point: number) {
-      this.$emit('answer', id, this.test.id, point);
-    },
-    toggleVisible() {
-      this.inputVisible = !this.inputVisible;
+    answer(this: { test: { id: number } }, id: number, point: number) {
+      (this as any).$emit('answer', id, this.test.id, point);
     },
   },
 };
